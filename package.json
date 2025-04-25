@@ -13,5 +13,8 @@
     "dev": "bun --watch ./src/index.ts",
     "test": "bun test"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "neverthrow": "^8.2.0"
+  }
 }
