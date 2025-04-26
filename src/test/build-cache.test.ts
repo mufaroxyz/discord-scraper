@@ -1,11 +1,11 @@
 import { expect, test } from "bun:test";
-import type { BuildMetadata } from "../util/types";
+import type { BuildCacheMetadata } from "../util/types";
 import { BUILD_CACHE_TARGET_FILE, BuildCache, MetadataNotFoundError } from "../util/build-cache";
 import { ok, err } from "neverthrow";
 
 test("BuildCache.pull should return Ok when correct data is provided", async () => {
-    const sampleConfig: BuildMetadata = {
-        buildVersion: 1,
+    const sampleConfig: BuildCacheMetadata = {
+        buildVersion: "20",
         hash: "hello world"
     }
 

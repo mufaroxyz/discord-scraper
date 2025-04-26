@@ -1,4 +1,5 @@
-import { BuildCache } from "./util/build-cache";
+import { BuildQueue } from "./workers/build-queue";
 
-const cache = await BuildCache.pull();
-console.log(cache);
+const buildQueue = new BuildQueue();
+
+buildQueue.start();

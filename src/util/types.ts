@@ -1,4 +1,9 @@
-export type BuildMetadata = {
-    buildVersion: number;
+export type BuildCacheMetadata = {
+    buildVersion: string;
     hash: string
 };
+
+export type BuildMetadata = {
+    version: string;
+    html: string;
+}

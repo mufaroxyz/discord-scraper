@@ -15,6 +15,8 @@
   },
   "type": "module",
   "dependencies": {
-    "neverthrow": "^8.2.0"
+    "neverthrow": "^8.2.0",
+    "os": "^0.1.2",
+    "p-queue": "^8.1.0"
   }
 }
