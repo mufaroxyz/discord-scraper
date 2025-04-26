@@ -15,7 +15,8 @@ const EMPTY_CACHE = {
 export class BuildCache {
     static async pull(): Promise<Result<BuildCacheMetadata, MetadataNotFoundError>> {
         if (!(await Bun.file(BUILD_CACHE_TARGET_FILE).exists())) {
-            Bun.file(BUILD_CACHE_TARGET_FILE).write("{ }");
+            Bun.file(BUILD_CACHE_TARGET_FILE).write(JSON.stringify(EMPTY_CACHE));
+            return ok(EMPTY_CACHE);
         }
 
         const file = Bun.file(`./${BUILD_CACHE_TARGET_FILE}`);
