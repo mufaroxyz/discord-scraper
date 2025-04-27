@@ -4,6 +4,6 @@ export type BuildCacheMetadata = {
 };
 
 export type BuildMetadata = {
-    version: string;
+    hash: string;
     html: string;
 }

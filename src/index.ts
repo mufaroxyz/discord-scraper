@@ -1,5 +1,7 @@
+import { GitUtil } from "./util/git";
 import { BuildQueue } from "./workers/build-queue";
 
-const buildQueue = new BuildQueue();
+await GitUtil.setCredentials();
 
+const buildQueue = new BuildQueue();
 buildQueue.start();

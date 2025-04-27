@@ -2,7 +2,9 @@ import os from "os";
 import PQueue from "p-queue";
 import { BuildCache } from "../util/build-cache";
 import { assert } from "console";
-import { ok, type Result } from "neverthrow";
+import { ok, err, type Result } from "neverthrow";
+import type { BuildMetadata } from "../util/types";
+import { BuildScraper } from "../util/build-scraper";
 
 const MAX_CONCURRENCY = Math.max(1, Math.floor(os.cpus().length / 2) || 1);
 const DISCORD_POLLING_RATE = 5 * 60 * 1000; // 5 minutes
@@ -17,12 +19,28 @@ export class BuildQueue {
     public start() {
         this.setupQueueListeners();
         this.initializePolling();
-    }
-
-    private async processBuild(buildId: string): Promise<Result<string, Error>> {
-        console.log(`[BuildQueue::processBuild] Processing build: ${buildId}`);
-        await Bun.sleep(3000);
-        return ok(buildId);
+    }    
+    
+    private async processBuild(buildMetadata: BuildMetadata): Promise<Result<string, Error>> {
+        console.log(`[BuildQueue::processBuild] Processing build: ${buildMetadata.hash}`);
+        
+        try {
+            const scraper = new BuildScraper();
+            
+            await scraper.freeDataSpace();
+            
+            await scraper.startScraping(buildMetadata);
+            
+            await BuildCache.push({
+                buildVersion: buildMetadata.hash,
+                hash: buildMetadata.hash
+            });
+            
+            return ok(buildMetadata.hash);
+        } catch (error) {
+            console.error(`[BuildQueue::processBuild] Error processing build: ${error}`);
+            return err(error as Error);
+        }
     }
 
     private async setupQueueListeners() {
@@ -45,9 +63,10 @@ export class BuildQueue {
             }
 
             const buildId = result.value;
+            this.activeBuildIds.delete(buildId);
             console.log(`[BuildQueue::setupQueueListeners] Build with ID ${buildId} completed`);
         });
-    }
+    }   
 
     private async checkForNewDiscordBuilds() {
         const cachedBuild = await BuildCache.pull();
@@ -81,7 +100,7 @@ export class BuildQueue {
         if (cachedBuildData.buildVersion !== buildId) {
             console.log(`[BuildQueue::checkForNewDiscordBuilds] New build detected: ${buildId}`);
             this.activeBuildIds.add(buildId);
-            this.queue.add(() => this.processBuild(buildId));
+            this.queue.add(async () => this.processBuild({ hash: buildId, html: await latestBuild.text() }));
         } else {
             console.log(`[BuildQueue::checkForNewDiscordBuilds] No new build detected`);
         }
